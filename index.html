@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f7f8f4" />
+  <title>OptiSpend — Your money, in a better place</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20260926-1" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a href="#home" class="brand" aria-label="OptiSpend home"><span class="brand-mark">o</span><span>optispend</span></a>
+      <div class="side-label">YOUR MONEY</div>
+      <nav class="primary-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-view="home"><span class="nav-icon">⌂</span>Overview</button>
+        <button class="nav-item agent-link" data-view="chat"><span class="nav-icon">✳</span>Talk to your money</button>
+        <button class="nav-item" data-view="spend"><span class="nav-icon">◉</span>Spend gatekeeper</button>
+        <button class="nav-item" data-view="divers"><span class="nav-icon">✳</span>Divers</button>
+        <button class="nav-item asset-link" data-view="assetpulse"><span class="nav-icon">◒</span>Asset pulse</button>
+        <button class="nav-item" data-view="invest"><span class="nav-icon">↗</span>Invest</button>
+        <button class="nav-item" data-view="rewards"><span class="nav-icon">✧</span>Rewards</button>
+        <button class="nav-item" data-view="protect"><span class="nav-icon">⬡</span>Protect</button>
+        <button class="nav-item" data-view="credit"><span class="nav-icon">▤</span>Credit score</button>
+        <button class="nav-item" data-view="loans"><span class="nav-icon">⌁</span>Loans</button>
+        <button class="nav-item" data-view="goals"><span class="nav-icon">◎</span>Goals & events</button>
+      </nav>
+      <div class="side-label side-label-lower">ACCOUNT</div>
+      <nav class="primary-nav" aria-label="Account navigation">
+        <button class="nav-item" data-view="accounts"><span class="nav-icon">⊞</span>Connected accounts</button>
+        <button class="nav-item" data-view="profile"><span class="nav-icon">◌</span>Profile & settings</button>
+      </nav>
+      <div class="side-bottom"><div class="secure-dot"></div><div><strong>Your data stays yours</strong><small>Consent-led & encrypted</small></div><span class="lock">⌑</span></div>
+    </aside>
+    <main class="main-area">
+      <header class="topbar"><button class="mobile-menu" id="menuToggle" aria-label="Open navigation">☰</button><div class="breadcrumb"><span>My money</span><span class="crumb-slash">/</span><strong id="pageCrumb">Overview</strong></div><div class="top-actions"><span class="live-pill"><i></i> All accounts synced</span><button class="icon-button" id="alertsButton" aria-label="Show alerts">♧<b>3</b></button><button class="avatar" data-view="profile" aria-label="Open profile">A</button></div></header>
+      <section id="viewRoot" class="view-root" aria-live="polite"><div class="startup-card"><span class="startup-mark">✦</span><h1>Opening your money view…</h1><p>OptiSpend is getting your dashboard ready.</p></div></section>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <div class="modal-backdrop" id="modalBackdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="modal-close" id="modalClose" aria-label="Close">×</button><div id="modalContent"></div></section></div>
+  <script src="app.js?v=20260926-2"></script>
+</body>
+</html>
