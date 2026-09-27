@@ -1,0 +1,128 @@
+# OptiSpend product guide
+
+## 1. Product intent
+
+OptiSpend is a personal-finance companion designed to make money easier to understand and act on. It brings a person’s financial picture together and helps them think through choices such as a purchase, a savings goal, a card benefit, or an upcoming expense.
+
+The product should feel calm, clear, and trustworthy. It should make the next useful action easy to find without presenting every metric and option at once. People can explore more detail when they want it.
+
+### Product promise
+
+- Give people a clear view of their money, including assets minus liabilities.
+- Help them make considered spending decisions while keeping their autonomy.
+- Surface useful benefits and reminders at the moment they matter.
+- Make financial planning feel relevant to the person’s life stage and goals.
+
+## 2. Experience principles
+
+1. **Start simple.** The overview gives a short, useful summary; deeper detail lives in dedicated sections.
+2. **Show context with advice.** A recommendation should explain the key reason and the conditions that could change it.
+3. **Keep the person in control.** Suggestions are guidance. Purchases, transfers, bookings, and account changes require the person’s decision and explicit review.
+4. **Be clear about uncertainty.** Label sample values, estimates, freshness, and data sources. Never present a model or estimate as a live quote.
+5. **Use a supportive tone.** Encourage planning without shaming someone for spending, saving, or choosing a goal.
+6. **Personalize presentation, not truth.** Life stage can change tone and emphasis, while financial facts and limitations remain clear.
+7. **Make consent visible.** A future account connection should show what data is requested, why, for how long, and how to revoke access.
+
+## 3. Life-stage personalization
+
+Onboarding asks which stage currently feels most relevant. It can be skipped or changed later.
+
+| Segment | Experience direction | Emphasis |
+| --- | --- | --- |
+| College student | Colorful, expressive, and interactive | Spending awareness, first savings habits, attainable goals |
+| Early career | A blend of lively and composed | Building buffers, automating goals, organizing benefits and liabilities |
+| Established / high earning | Restrained, polished, and information-rich | Coordinating assets, liabilities, commitments, and long-term plans |
+
+The current prototype changes theme and selected copy based on this choice. The user profile and underlying sample financial data are not independently modeled for each segment.
+
+## 4. Information architecture
+
+### Overview
+
+A concise landing page for net worth, available-to-spend context, near-term alerts, and a sample money-habits signal. Net worth is calculated as assets minus liabilities. Shortcuts lead to purchase planning, goals, or a deeper portfolio view.
+
+### Talk to your money
+
+A conversational entry point for questions about the sample data, future plans, and navigating the prototype. The current reply logic is local and rule-based. It is not connected to an LLM or financial data service. Demo reminders ask for confirmation and only affect the local prototype state.
+
+### Spend Gatekeeper
+
+A purchase-planning view where someone can enter an item or service, an amount, a category, and an optional link. It presents sample cash-flow context, relevant mock card-benefit examples, and broad depreciation context for certain goods. Link results are illustrative: the prototype does not open submitted links or search other merchants for live prices.
+
+A future comparison flow could normalize the total payable price across merchants, including delivery or booking fees, eligibility, payment offers, cancellation terms, and reward value. It should identify the source and timestamp for each live result.
+
+### Divers
+
+A broad view of financial holdings and places money can be held: banking and savings, mutual funds, Indian and US stocks, bonds and G-Secs, gold and silver, real estate, government schemes, and retirement. The prototype uses sample portfolio records and simple filters; broker data is not connected.
+
+### Asset Pulse
+
+Tracks user-entered cars, phones, gadgets, watches, and property using purchase details, optional current quotes, and optional linked loan balances. The prototype calculates illustrative resale estimates and broad depreciation context, keeps the uncertainty visible, and includes example updates tied to sample holdings. Cars24, Spinny, CarWale, Cashify, property valuations, and company news are not live sources in this demo.
+
+### Invest
+
+A sample view for comparing investment options and exploring holdings. It is a presentation prototype, not a personalized recommendation engine or an execution flow.
+
+### Rewards
+
+Shows example card benefits and a sample offer lookup. The interface demonstrates how a relevant offer can be summarized first, with full terms available on demand. Offer availability, eligibility, caps, and redemption value must be verified with the issuer before a real purchase. The HDFC Millennia example links to issuer terms; offers are not fetched live.
+
+### Protect
+
+A place for insurance and protection coverage summaries. Current values are sample data; there is no underwriting or policy connection.
+
+### Credit Score and Loans
+
+Sample credit-score context and loan summaries or calculators. The credit score is separate from OptiSpend’s sample money-habits signal. No bureau or lender data is connected.
+
+### Goals and events
+
+Tracks sample savings goals and upcoming events so that planning can account for meaningful dates and commitments. Demo reminders remain local to the prototype.
+
+### Connected accounts
+
+Lists mock banks, brokerages, and data providers such as Groww, Zerodha, INDmoney, banks, and Account Aggregator flows. The controls explain a future consent step but do not establish a real connection or store account credentials.
+
+### Profile and settings
+
+A place to change the life-stage preference and other sample preferences. Current preference changes are local to the browser.
+
+## 5. Contextual signals and emotional design
+
+The product can surface a small number of timely prompts: upcoming bills and events, expiring card points, cash above a chosen buffer, relevant card benefits, and changes to holdings a person owns. Location-aware or macroeconomic opportunities are a future capability and must include source, date, relevance, and uncertainty.
+
+Emotional language should support a person’s goals and sense of agency. For example, a travel nudge may acknowledge progress while showing the effect on the person’s plan. It should never declare that a person “deserves” or does not deserve a purchase based on a behavioral score.
+
+## 6. What works today vs. future work
+
+| Capability | Current prototype | Future integration needed |
+| --- | --- | --- |
+| Net worth | Calculates from included sample assets and liabilities | Consented, normalized accounts and verified valuations |
+| Purchases | Local form and sample guidance | Fresh balances, bills, merchant parsing, live offer rules |
+| Purchase links | Validates a URL and shows an illustrative comparison | Secure page retrieval, merchant matching, price search, terms verification |
+| Rewards | Sample card examples and benefit details | Issuer or offer-provider feeds, eligibility, caps, expiry and redemption data |
+| Chat | Local intent handling over sample records | Authenticated model service, permission-scoped retrieval, action review |
+| Accounts and brokers | Mock connection catalog | Consented provider adapters and revocation handling |
+| Asset valuations | Broad illustrative estimates and user-entered quotes | Licensed or permitted valuation sources, quote timestamps, condition and location inputs |
+| News and signals | Example holding-specific card | Current trusted sources matched only to owned holdings, with citations and uncertainty |
+
+## 7. Integration and data principles
+
+A production implementation should put external access behind a backend service, not in browser-only code. Each imported record should carry its provider, consent scope, retrieval time, freshness state, and revocation status. Account Aggregator or other open-finance flows should be used only where available and with explicit user consent.
+
+Never ask for or store a bank or brokerage password in the interface. Do not execute a payment, trade, loan application, booking, or insurance action from a conversational suggestion. Present the proposed action, amount, destination, and key terms for the person to review and confirm.
+
+Potential adapters include:
+
+- Indian financial-data consent flows and supported Account Aggregator participants
+- Banks and payment accounts
+- Brokerage and investment platforms such as Groww, Zerodha, and INDmoney
+- Card issuers and reward / offer providers
+- Merchant, travel, resale, and property-data sources
+- Credit bureaus, lenders, and insurance providers
+
+Provider names are examples of possible future integrations, not endorsements or claims of current access.
+
+## 8. Running the prototype
+
+See the [README](../README.md) for local setup. The site is static and uses sample data. Keep the local server process running while browsing; closing it makes the localhost page unavailable.
