@@ -102,8 +102,8 @@ Emotional language should support a person’s goals and sense of agency. For ex
 | Capability | Current prototype | Future integration needed |
 | --- | --- | --- |
 | Net worth | Calculates from included sample assets and liabilities | Consented, normalized accounts and verified valuations |
-| Purchases | Local form and sample guidance | Fresh balances, bills, merchant parsing, live offer rules |
-| Pre-purchase gatekeeper | Sample purchase plan with illustrative context | Explicit opt-in, normalized obligations, fresh account data, and a consented payment or issuer workflow; no silent blocking |
+| Purchases | Local API evaluates against sample balances and obligations; UI keeps the choice with the person | Fresh consented balances, bills, merchant parsing, live offer rules |
+| Pre-purchase gatekeeper | Informational check only; no transaction approval or blocking | Explicit opt-in, normalized obligations, fresh account data, and a consented payment or issuer workflow; no silent blocking |
 | Purchase links | Validates a URL and shows an illustrative comparison | Secure page retrieval, merchant matching, price search, terms verification |
 | Rewards | Sample card examples and benefit details | Issuer or offer-provider feeds, eligibility, caps, expiry and redemption data |
 | Chat | Local intent handling over sample records | Authenticated model service, permission-scoped retrieval, action review |
@@ -114,16 +114,18 @@ Emotional language should support a person’s goals and sense of agency. For ex
 
 ## 7. Backend and analytics design work
 
-As part of the OptiSpend project, the backend and analytics design explores how to support transaction-aware purchase checks and wealth-optimization workflows. This documents architecture and system-design work; it does not claim that the services below have been implemented, deployed, or connected. Provider access, data residency, throughput, cost, retention, and regulatory requirements would need validation before implementation.
+As part of the OptiSpend project, the backend and analytics work explores transaction-aware purchase checks and wealth-optimization workflows. A small local service is implemented to make the purchase-check path concrete. The production-scale services below remain architecture and system-design work; provider access, data residency, throughput, cost, retention, and regulatory requirements would need validation before implementation.
 
 ### Project work summary
 
-- Designed an opt-in pre-purchase decision service that evaluates a planned discretionary spend against user-defined savings targets, known fixed obligations, and a cash-flow buffer, then returns a reasoned recommendation for the user to review.
-- Designed recommendation workflows for matching eligible card benefits to planned purchases and surfacing savings, investment, or tax-planning opportunities using stated goals, time horizon, liquidity needs, and risk preferences.
-- Proposed a real-time data architecture using Plaid / Sahamati-compatible consented data adapters, Kafka event intake, Flink stream processing, Redis for short-lived decision context, PostgreSQL for application records, and Delta Lake for governed historical analytics.
-- Considered data freshness, consent scope, event deduplication, auditability, uncertainty, and human review as part of the recommendation pipeline.
+- Implemented a local purchase-check API that compares a planned amount with sample available balance, a protected event reserve, and a comfort buffer, then returns a short explanation for the person to review.
+- Built a producer/consumer event flow for purchase checks. It processes broad category, amount band, and guidance outcome only; item names, links, exact purchase amounts, account data, and transaction records are not retained in analytics.
+- Added an in-memory aggregate endpoint for check counts by category, amount band, and outcome. The aggregates clear when the local service stops.
+- Designed recommendation workflows for matching eligible card benefits to planned purchases and, as future work, surfacing savings, investment, or tax-planning ideas using stated goals, time horizon, liquidity needs, and risk preferences.
+- Proposed a production-scale path using consented Plaid / Sahamati-compatible data adapters, Kafka event intake, Flink stream processing, Redis for short-lived decision context, PostgreSQL for application records, and Delta Lake for governed historical analytics.
+- Considered data freshness, consent scope, event deduplication, auditability, uncertainty, data minimization, and human review as part of the recommendation pipeline.
 
-These are backend and analytics design contributions for the project; they are separate from the current browser prototype, which uses local sample data.
+The local service uses Python's standard library and a single-process in-memory queue. It demonstrates the API and event-processing boundary without requiring a broker or database. Kafka, Flink, Redis, PostgreSQL, Delta Lake, Plaid, and Sahamati are not connected in this prototype; the later architecture describes how the design could scale and integrate with consented external data.
 
 1. **Consent and provider adapters:** Plaid (where supported) and India’s Account Aggregator ecosystem through compatible Sahamati participants can provide consented financial data. Adapters normalize provider-specific accounts, balances, transactions, and consent events. Product availability and the exact API path depend on geography, provider participation, and user authorization.
 2. **Event intake:** A backend publishes normalized, consent-scoped updates to Kafka. Events include provider, account reference, event time, ingestion time, consent scope, and a deduplication key; credentials and unnecessary personal data stay out of event payloads.

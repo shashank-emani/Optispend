@@ -4,23 +4,23 @@ OptiSpend is a responsive prototype for a calmer, more personal way to understan
 
 The interface adapts to a person’s life stage, keeps the home view focused, and reveals detail when someone chooses to explore. A purchase check can consider a planned amount, upcoming commitments, payment-card offers and an optional product or booking link. A conversational view provides another way to ask about the sample financial picture.
 
-> **Prototype notice:** All accounts, balances, valuations, scores, offers and integrations are illustrative. The app does not connect to financial institutions, fetch live prices, browse submitted purchase links, or provide a live AI assistant. It does not move money or make financial decisions.
+> **Prototype notice:** Accounts, balances, valuations, scores, and offers are illustrative. The local backend evaluates purchase checks against sample figures and records only broad, in-memory analytics. It does not connect to financial institutions, fetch live prices, browse submitted purchase links, provide a live AI assistant, move money, or approve or block transactions.
 
 ## Explore the product
 
 The [OptiSpend product guide](docs/PRODUCT_GUIDE.md) describes the product intent, experience areas, personalization, current prototype behavior, and the boundaries for future integrations.
 
-The product guide also documents backend and analytics design work for an opt-in real-time financial gatekeeper and wealth-optimization workflows. The architecture is a project design proposal; those services are not deployed in this prototype.
+The product guide documents the backend and analytics work, including the local event-processing slice and a proposed path to Kafka/Flink-scale services. The local service is runnable; external financial-data integrations remain future work.
 
 ## Run locally
 
-This is a static site with no build step or package installation. From this folder, start a local server:
+The prototype uses Python’s standard library; no package installation is needed. From this folder, start the app and its local backend:
 
 ```sh
-python3 -m http.server 8000
+python3 backend/server.py
 ```
 
-Then open [http://localhost:8000](http://localhost:8000). Keep the terminal running while you use the site; stopping the server makes the local address unavailable. You can also open `index.html` directly, though a local server is more reliable.
+Then open [http://localhost:8000](http://localhost:8000). Keep the terminal running while you use the site; stopping it also stops the local purchase-check API and clears its in-memory analytics.
 
 ## What’s in the prototype
 
@@ -29,6 +29,7 @@ Then open [http://localhost:8000](http://localhost:8000). Keep the terminal runn
 - Talk to your money chat, investment and savings views, rewards, protection, credit score, loans, goals, and upcoming events
 - Asset Pulse for sample resale values, depreciation context, linked liabilities, and updates tied to sample holdings
 - Mock connected-account and broker flows, plus profile and settings
+- Local purchase-check API with an in-memory event worker and aggregate-only analytics
 
 See the product guide for what is interactive today versus what remains a future integration.
 
@@ -37,3 +38,5 @@ See the product guide for what is interactive today versus what remains a future
 - `index.html` — app shell and page structure
 - `styles.css` — responsive styles and life-stage themes
 - `app.js` — sample data, view switching, and prototype interactions
+- `backend/server.py` — local sample purchase-check API and privacy-minimal analytics worker
+- `backend-ui.js` — connects the Spend Gatekeeper to the local API when it is running
