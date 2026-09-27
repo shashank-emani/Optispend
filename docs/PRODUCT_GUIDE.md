@@ -51,6 +51,8 @@ A purchase-planning view where someone can enter an item or service, an amount, 
 
 A future comparison flow could normalize the total payable price across merchants, including delivery or booking fees, eligibility, payment offers, cancellation terms, and reward value. It should identify the source and timestamp for each live result.
 
+The longer-term **financial gatekeeper** concept is an opt-in checkpoint before a user completes a discretionary purchase. It would compare the planned spend with that user’s chosen savings targets, known fixed obligations, and available cash-flow buffer, then explain the trade-offs and suggest relevant payment benefits. OptiSpend should inform and help the user review a choice; it should not silently block or execute a transaction. The current prototype is not connected to a payment rail or issuer authorization flow and cannot intercept, approve, or decline real transactions.
+
 ### Divers
 
 A broad view of financial holdings and places money can be held: banking and savings, mutual funds, Indian and US stocks, bonds and G-Secs, gold and silver, real estate, government schemes, and retirement. The prototype uses sample portfolio records and simple filters; broker data is not connected.
@@ -62,6 +64,8 @@ Tracks user-entered cars, phones, gadgets, watches, and property using purchase 
 ### Invest
 
 A sample view for comparing investment options and exploring holdings. It is a presentation prototype, not a personalized recommendation engine or an execution flow.
+
+A future wealth-optimization layer could compare eligible card rewards and surface savings, investment, or tax-planning ideas using a user’s stated goals, time horizon, liquidity needs, and risk preferences. Any tax or investment output must show assumptions, source and date, uncertainty, fees, and relevant eligibility; it should distinguish general education from regulated personalized advice and require appropriate review before action. The current prototype does not calculate tax liability, produce risk-profiled recommendations, verify live products or rates, or place investments.
 
 ### Rewards
 
@@ -99,14 +103,30 @@ Emotional language should support a person’s goals and sense of agency. For ex
 | --- | --- | --- |
 | Net worth | Calculates from included sample assets and liabilities | Consented, normalized accounts and verified valuations |
 | Purchases | Local form and sample guidance | Fresh balances, bills, merchant parsing, live offer rules |
+| Pre-purchase gatekeeper | Sample purchase plan with illustrative context | Explicit opt-in, normalized obligations, fresh account data, and a consented payment or issuer workflow; no silent blocking |
 | Purchase links | Validates a URL and shows an illustrative comparison | Secure page retrieval, merchant matching, price search, terms verification |
 | Rewards | Sample card examples and benefit details | Issuer or offer-provider feeds, eligibility, caps, expiry and redemption data |
 | Chat | Local intent handling over sample records | Authenticated model service, permission-scoped retrieval, action review |
+| Wealth and tax optimization | Educational sample comparisons only | User-approved risk and goal inputs, current product and tax rules, suitability controls, and qualified review where required |
 | Accounts and brokers | Mock connection catalog | Consented provider adapters and revocation handling |
 | Asset valuations | Broad illustrative estimates and user-entered quotes | Licensed or permitted valuation sources, quote timestamps, condition and location inputs |
 | News and signals | Example holding-specific card | Current trusted sources matched only to owned holdings, with citations and uncertainty |
 
-## 7. Integration and data principles
+## 7. Proposed real-time data architecture
+
+The following is a candidate production architecture for transaction-aware analysis and recommendations. It is a design direction, not a claim that these services have been selected, deployed, or connected. Provider access, data residency, throughput, cost, retention, and regulatory requirements should be validated before implementation.
+
+1. **Consent and provider adapters:** Plaid (where supported) and India’s Account Aggregator ecosystem through compatible Sahamati participants can provide consented financial data. Adapters normalize provider-specific accounts, balances, transactions, and consent events. Product availability and the exact API path depend on geography, provider participation, and user authorization.
+2. **Event intake:** A backend publishes normalized, consent-scoped updates to Kafka. Events include provider, account reference, event time, ingestion time, consent scope, and a deduplication key; credentials and unnecessary personal data stay out of event payloads.
+3. **Streaming analysis:** Flink can reconcile events, categorize transactions, update obligation and savings-target views, and evaluate user-configured gatekeeper rules. Late, duplicated, corrected, or missing events need explicit handling so recommendations do not treat incomplete data as certain.
+4. **Fast decision context:** Redis can hold short-lived derived context for low-latency purchase checks, with explicit freshness markers and expiration. It should not become the source of truth for financial records.
+5. **Application records:** PostgreSQL can store user preferences, goals, consent references, normalized account metadata, review history, and recommendation explanations, protected with encryption, access controls, and audit logging.
+6. **Historical analytics:** Delta Lake can hold governed, access-controlled historical data for trend analysis and model evaluation, subject to minimization, retention, deletion, and applicable consent obligations.
+7. **Recommendation response:** The API returns an explanation with the values and dates used, freshness, missing-data caveats, and relevant alternatives. A purchase decision remains user-controlled. Financial execution stays outside the recommendation path unless a separately authorized, compliant product flow is designed.
+
+Plaid, Sahamati, Kafka, Flink, Redis, PostgreSQL, and Delta Lake are proposed integration and infrastructure examples only. This static prototype uses local sample data and does not connect to any of them.
+
+## 8. Integration and data principles
 
 A production implementation should put external access behind a backend service, not in browser-only code. Each imported record should carry its provider, consent scope, retrieval time, freshness state, and revocation status. Account Aggregator or other open-finance flows should be used only where available and with explicit user consent.
 
@@ -123,6 +143,6 @@ Potential adapters include:
 
 Provider names are examples of possible future integrations, not endorsements or claims of current access.
 
-## 8. Running the prototype
+## 9. Running the prototype
 
 See the [README](../README.md) for local setup. The site is static and uses sample data. Keep the local server process running while browsing; closing it makes the localhost page unavailable.
