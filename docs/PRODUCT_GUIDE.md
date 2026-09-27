@@ -112,9 +112,18 @@ Emotional language should support a person’s goals and sense of agency. For ex
 | Asset valuations | Broad illustrative estimates and user-entered quotes | Licensed or permitted valuation sources, quote timestamps, condition and location inputs |
 | News and signals | Example holding-specific card | Current trusted sources matched only to owned holdings, with citations and uncertainty |
 
-## 7. Proposed real-time data architecture
+## 7. Backend and analytics design work
 
-The following is a candidate production architecture for transaction-aware analysis and recommendations. It is a design direction, not a claim that these services have been selected, deployed, or connected. Provider access, data residency, throughput, cost, retention, and regulatory requirements should be validated before implementation.
+As part of the OptiSpend project, the backend and analytics design explores how to support transaction-aware purchase checks and wealth-optimization workflows. This documents architecture and system-design work; it does not claim that the services below have been implemented, deployed, or connected. Provider access, data residency, throughput, cost, retention, and regulatory requirements would need validation before implementation.
+
+### Project work summary
+
+- Designed an opt-in pre-purchase decision service that evaluates a planned discretionary spend against user-defined savings targets, known fixed obligations, and a cash-flow buffer, then returns a reasoned recommendation for the user to review.
+- Designed recommendation workflows for matching eligible card benefits to planned purchases and surfacing savings, investment, or tax-planning opportunities using stated goals, time horizon, liquidity needs, and risk preferences.
+- Proposed a real-time data architecture using Plaid / Sahamati-compatible consented data adapters, Kafka event intake, Flink stream processing, Redis for short-lived decision context, PostgreSQL for application records, and Delta Lake for governed historical analytics.
+- Considered data freshness, consent scope, event deduplication, auditability, uncertainty, and human review as part of the recommendation pipeline.
+
+These are backend and analytics design contributions for the project; they are separate from the current browser prototype, which uses local sample data.
 
 1. **Consent and provider adapters:** Plaid (where supported) and India’s Account Aggregator ecosystem through compatible Sahamati participants can provide consented financial data. Adapters normalize provider-specific accounts, balances, transactions, and consent events. Product availability and the exact API path depend on geography, provider participation, and user authorization.
 2. **Event intake:** A backend publishes normalized, consent-scoped updates to Kafka. Events include provider, account reference, event time, ingestion time, consent scope, and a deduplication key; credentials and unnecessary personal data stay out of event payloads.

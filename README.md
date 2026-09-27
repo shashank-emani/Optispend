@@ -10,7 +10,7 @@ The interface adapts to a person’s life stage, keeps the home view focused, an
 
 The [OptiSpend product guide](docs/PRODUCT_GUIDE.md) describes the product intent, experience areas, personalization, current prototype behavior, and the boundaries for future integrations.
 
-The proposed product direction also includes an opt-in real-time financial gatekeeper and a wealth-optimization layer. These are documented as future capabilities; they are not live in this prototype.
+The product guide also documents backend and analytics design work for an opt-in real-time financial gatekeeper and wealth-optimization workflows. The architecture is a project design proposal; those services are not deployed in this prototype.
 
 ## Run locally
 
