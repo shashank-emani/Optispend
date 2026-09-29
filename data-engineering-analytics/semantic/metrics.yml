@@ -1,0 +1,59 @@
+version: 1
+prototype_only: true
+source: ../runtime/lake/gold
+datasets:
+  - name: purchase_checks_daily
+    file: purchase_checks_daily.csv
+    dimensions:
+      - event_date
+    measures:
+      - name: purchase_check_count
+        column: check_count
+        aggregation: sum
+      - name: within_plan_rate_pct
+        expression: 100 * sum(within_plan_count) / nullif(sum(check_count), 0)
+      - name: checks_to_review
+        column: review_count
+        aggregation: sum
+      - name: estimated_planned_amount_midpoint_inr
+        column: estimated_amount_midpoint_inr
+        aggregation: sum
+        description: Estimate based on broad amount-band midpoints, not exact amounts.
+
+  - name: purchase_checks_by_category
+    file: purchase_checks_by_category.csv
+    dimensions:
+      - category
+    measures:
+      - name: purchase_check_count
+        column: check_count
+        aggregation: sum
+      - name: within_plan_rate_pct
+        expression: 100 * sum(within_plan_count) / nullif(sum(check_count), 0)
+      - name: checks_to_review
+        column: review_count
+        aggregation: sum
+      - name: estimated_planned_amount_midpoint_inr
+        column: estimated_amount_midpoint_inr
+        aggregation: sum
+
+  - name: purchase_checks_by_outcome
+    file: purchase_checks_by_outcome.csv
+    dimensions:
+      - guidance_outcome
+    measures:
+      - name: purchase_check_count
+        column: check_count
+        aggregation: sum
+      - name: estimated_planned_amount_midpoint_inr
+        column: estimated_amount_midpoint_inr
+        aggregation: sum
+
+governance:
+  excluded_dimensions:
+    - person
+    - account
+    - merchant_url
+    - exact_purchase_name
+  user_level_recommendations: false
+  financial_decisions: false

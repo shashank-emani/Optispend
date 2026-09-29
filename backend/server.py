@@ -1,17 +1,14 @@
-"""OptiSpend's local, privacy-minimal purchase analytics service.
+"""OptiSpend's local sample purchase-check application service.
 
 This small standard-library service is a runnable project slice, not a bank
 integration. It serves the prototype, evaluates purchase plans against sample
-figures, and processes anonymous aggregate events in a local in-memory queue.
+figures, and returns explanatory purchase guidance without retaining requests.
 """
 
-from collections import Counter
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
-from queue import Queue
 import re
-import threading
 from urllib.parse import urlparse
 
 
@@ -24,43 +21,6 @@ SAMPLE_AVAILABLE_AFTER_BILLS_AND_SAVINGS = 84_620
 SAMPLE_EVENT_RESERVE = 12_000
 SAMPLE_COMFORT_BUFFER = 16_000
 SAMPLE_MILLENNIA_CASHBACK_CAP_LEFT = 620
-
-EVENTS = Queue()
-ANALYTICS_LOCK = threading.Lock()
-ANALYTICS = {
-    "checks": 0,
-    "categories": Counter(),
-    "outcomes": Counter(),
-    "amountBands": Counter(),
-}
-
-
-def amount_band(amount):
-    if amount <= 5_000:
-        return "0-5000"
-    if amount <= 16_000:
-        return "5001-16000"
-    if amount <= 50_000:
-        return "16001-50000"
-    return "50001-plus"
-
-
-def process_events():
-    """Consume minimal events, keeping no item name, URL, or exact amount."""
-    while True:
-        event = EVENTS.get()
-        try:
-            with ANALYTICS_LOCK:
-                ANALYTICS["checks"] += 1
-                ANALYTICS["categories"][event["category"]] += 1
-                ANALYTICS["outcomes"][event["outcome"]] += 1
-                ANALYTICS["amountBands"][event["amountBand"]] += 1
-        finally:
-            EVENTS.task_done()
-
-
-threading.Thread(target=process_events, name="opti-analytics-worker", daemon=True).start()
-
 
 def evaluate(payload):
     name = str(payload.get("name", "Purchase"))[:100].strip() or "Purchase"
@@ -107,17 +67,6 @@ def evaluate(payload):
         else "HDFC Millennia · sample 1% eligible-spend rate"
     )
 
-    # Deliberately omit the item name and exact amount from this event.
-    EVENTS.put({
-        "category": category,
-        "outcome": outcome,
-        "amountBand": amount_band(amount),
-    })
-    EVENTS.join()
-
-    with ANALYTICS_LOCK:
-        summary = analytics_snapshot()
-
     return {
         "name": name,
         "amount": amount,
@@ -132,19 +81,7 @@ def evaluate(payload):
             "estimatedCashback": estimated_cashback,
             "note": "Illustrative card terms and cap; confirm current issuer conditions before paying.",
         },
-        "analytics": summary,
         "sampleData": True,
-    }
-
-
-def analytics_snapshot():
-    return {
-        "checks": ANALYTICS["checks"],
-        "categories": dict(ANALYTICS["categories"]),
-        "outcomes": dict(ANALYTICS["outcomes"]),
-        "amountBands": dict(ANALYTICS["amountBands"]),
-        "storage": "memory-only; resets when the local service stops",
-        "retainedFields": ["category", "amount band", "guidance outcome"],
     }
 
 
@@ -170,13 +107,9 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/health":
             return self.send_json(200, {
                 "ok": True,
-                "service": "OptiSpend local sample analytics",
+                "service": "OptiSpend local sample application API",
                 "mode": "local sample data; no financial accounts connected",
             })
-        if path == "/api/analytics/summary":
-            with ANALYTICS_LOCK:
-                snapshot = analytics_snapshot()
-            return self.send_json(200, snapshot)
         return super().do_GET()
 
     def do_POST(self):

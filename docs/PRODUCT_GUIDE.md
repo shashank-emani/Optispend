@@ -112,32 +112,13 @@ Emotional language should support a person’s goals and sense of agency. For ex
 | Asset valuations | Broad illustrative estimates and user-entered quotes | Licensed or permitted valuation sources, quote timestamps, condition and location inputs |
 | News and signals | Example holding-specific card | Current trusted sources matched only to owned holdings, with citations and uncertainty |
 
-## 7. Backend and analytics design work
+## 7. Application software engineering layer
 
-As part of the OptiSpend project, the backend and analytics work explores transaction-aware purchase checks and wealth-optimization workflows. A small local service is implemented to make the purchase-check path concrete. The production-scale services below remain architecture and system-design work; provider access, data residency, throughput, cost, retention, and regulatory requirements would need validation before implementation.
+The application layer contains the responsive OptiSpend interface and a small Python service for its purchase-check experience. The service evaluates a planned purchase against sample available funds, a sample event reserve, and a comfort buffer, then returns an explanation and illustrative card-benefit estimate. It does not persist purchase requests, connect to accounts, execute payments, or approve or block purchases.
 
-### Project work summary
+The separately scoped **data engineering and analytics layer** is documented and prototyped in [data-engineering-analytics](../data-engineering-analytics/README.md). It reads its own synthetic application-database fixture and produces lake-style data and semantic marts. It is not coupled to the user-facing purchase-check API.
 
-- Implemented a local purchase-check API that compares a planned amount with sample available balance, a protected event reserve, and a comfort buffer, then returns a short explanation for the person to review.
-- Built a producer/consumer event flow for purchase checks. It processes broad category, amount band, and guidance outcome only; item names, links, exact purchase amounts, account data, and transaction records are not retained in analytics.
-- Added an in-memory aggregate endpoint for check counts by category, amount band, and outcome. The aggregates clear when the local service stops.
-- Designed recommendation workflows for matching eligible card benefits to planned purchases and, as future work, surfacing savings, investment, or tax-planning ideas using stated goals, time horizon, liquidity needs, and risk preferences.
-- Proposed a production-scale path using consented Plaid / Sahamati-compatible data adapters, Kafka event intake, Flink stream processing, Redis for short-lived decision context, PostgreSQL for application records, and Delta Lake for governed historical analytics.
-- Considered data freshness, consent scope, event deduplication, auditability, uncertainty, data minimization, and human review as part of the recommendation pipeline.
-
-The local service uses Python's standard library and a single-process in-memory queue. It demonstrates the API and event-processing boundary without requiring a broker or database. Kafka, Flink, Redis, PostgreSQL, Delta Lake, Plaid, and Sahamati are not connected in this prototype; the later architecture describes how the design could scale and integrate with consented external data.
-
-1. **Consent and provider adapters:** Plaid (where supported) and India’s Account Aggregator ecosystem through compatible Sahamati participants can provide consented financial data. Adapters normalize provider-specific accounts, balances, transactions, and consent events. Product availability and the exact API path depend on geography, provider participation, and user authorization.
-2. **Event intake:** A backend publishes normalized, consent-scoped updates to Kafka. Events include provider, account reference, event time, ingestion time, consent scope, and a deduplication key; credentials and unnecessary personal data stay out of event payloads.
-3. **Streaming analysis:** Flink can reconcile events, categorize transactions, update obligation and savings-target views, and evaluate user-configured gatekeeper rules. Late, duplicated, corrected, or missing events need explicit handling so recommendations do not treat incomplete data as certain.
-4. **Fast decision context:** Redis can hold short-lived derived context for low-latency purchase checks, with explicit freshness markers and expiration. It should not become the source of truth for financial records.
-5. **Application records:** PostgreSQL can store user preferences, goals, consent references, normalized account metadata, review history, and recommendation explanations, protected with encryption, access controls, and audit logging.
-6. **Historical analytics:** Delta Lake can hold governed, access-controlled historical data for trend analysis and model evaluation, subject to minimization, retention, deletion, and applicable consent obligations.
-7. **Recommendation response:** The API returns an explanation with the values and dates used, freshness, missing-data caveats, and relevant alternatives. A purchase decision remains user-controlled. Financial execution stays outside the recommendation path unless a separately authorized, compliant product flow is designed.
-
-Plaid, Sahamati, Kafka, Flink, Redis, PostgreSQL, and Delta Lake are proposed integration and infrastructure examples only. This static prototype uses local sample data and does not connect to any of them.
-
-## 8. Integration and data principles
+## 8. Future application integrations
 
 A production implementation should put external access behind a backend service, not in browser-only code. Each imported record should carry its provider, consent scope, retrieval time, freshness state, and revocation status. Account Aggregator or other open-finance flows should be used only where available and with explicit user consent.
 
@@ -154,6 +135,6 @@ Potential adapters include:
 
 Provider names are examples of possible future integrations, not endorsements or claims of current access.
 
-## 9. Running the prototype
+## 9. Running the application prototype
 
-See the [README](../README.md) for local setup. The site is static and uses sample data. Keep the local server process running while browsing; closing it makes the localhost page unavailable.
+See the [README](../README.md) for local setup. The application UI and purchase-check service use sample data. The separate [data engineering and analytics prototype](../data-engineering-analytics/README.md) runs as a batch job and writes only local, synthetic outputs.
